@@ -1,0 +1,54 @@
+Mandatory Files
+python -V #checks version
+python -m venv venv  #first initializes second is the 
+pip freeze  #lists all packages
+    pip freeze > requirements.txt
+        pip install -r requirements.txt #for people that install packages needed for app 
+    venv\Scripts\Activate  #To activate my environmnt
+    python -m pip install --upgrade sepip #Only if pip needs to be upgraded#
+    pip install flask flask-bootstrap flask-wtf flask-sqlalchemy flask-migrate flask-login
+init.py
+    from flask import Flask 
+    app = Flask(__name__)
+
+    set(export for Mac/Linux) FLASK_APP=run.py
+    set(export for Mac/Linux) FLASK_DEBUG=1
+    
+    flask db init
+    flask db migrate
+    flask db upgrade
+config.py
+    basedir
+    class config
+        
+models.py
+Run.py
+    (from app import app)
+    python script that runs the __init__
+app folder
+    static
+        js
+        images
+        css
+    templates
+        layout.html {jinja functions}
+            {% extends 'bootstrap/base.html' %}
+            {% block styles %}
+            {% block content %}
+            {% block app_content %}
+        index.html
+            {% extends "layout.html" %}
+        (includes folder with template pieces)
+    __init__.py
+        from flask import Flask 
+        from flask_bootstrap import Bootstrap 
+        app = Flask(__name__) 
+        bootstrap = Bootstrap(app) 
+        from app import routes
+    routes.py
+        from app import app
+        from flask import render_template, redirect, url_for
+        @app.route('/') #Class Decorator#
+        def index():   
+        return render_template('index.html')
+    venv

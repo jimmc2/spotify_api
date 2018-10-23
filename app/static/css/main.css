@@ -1,0 +1,17 @@
+.back{
+    background-color: #2F6B72;
+    min-height: 100vh;
+}
+
+.main{
+    margin: 0% 6%;
+    background-color: #00353A;
+    color: #63CCCA;
+    min-height: 100vh;
+}
+.table{
+    width: 100%
+}
+tr{
+    width:100%
+}

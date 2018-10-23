@@ -1,0 +1,33 @@
+<form id="ArtistForm" action="">
+  <div class="form-group">
+      <h5>Enter an artist to find other artists they commonly collaborate with and listen to their songs</h5>
+  <input type="text" class="form-control" name="Artist" id="Artist" aria-describedby="helpId" placeholder="Try: 'Rihanna'">
+  <small id="helpId" class="form-text text-muted">Help text</small>
+  <button id="theButton" type="submit" class="btn btn-primary" >Submit</button>
+</div>
+</form>
+
+<script type=text/javascript>
+var cars = [
+        { "make":"Porsche", "model":"911S" },
+        { "make":"Mercedes-Benz", "model":"220SE" },
+        { "make":"Jaguar","model": "Mark VII" }
+      ];
+
+
+      function doWork() {
+        // ajax the JSON to the server
+        $.ajax({
+          type: "POST",
+          url: "/receiver",
+          data: JSON.stringify(cars),
+          success: function(){ console.log("success")},
+          dataType: "json",
+          contentType: "application/json"
+        });
+        
+        // stop link reloading the page
+      event.preventDefault();
+      }
+
+</script>
