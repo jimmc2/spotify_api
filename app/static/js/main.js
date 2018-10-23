@@ -5,21 +5,31 @@ var myData = {
   next:'start',
   fullD:[]
 }
+
+var targetUrl;
+var currentlyMakingRequest;
+var allRequestsCompleted;
+var intervalId;
+
 $(document).ready(function () {
   // setup the button click
-$("#ArtistForm").submit(function(event) {
-    event.preventDefault();
-    document.getElementById("theButton").disabled = true;
-    console.log(document.querySelector('#Artist').value)
-    query(document.querySelector('#Artist').value,myData.token)
-    console.log('query')
-    document.getElementById("theButton").disabled = false;
-    return false
-  })
+  $("#ArtistForm").submit(function(event) {
+      event.preventDefault();
+      var button = $("#theButton");
+      var artist = $("#Artist");
+      var progress = $("#searchProgress");
+      $("#theButton").prop("disabled", "disabled");
+      $("#Artist").prop("disabled", "disabled");
+      $("#searchProgress").show();
+
+      query(artist.val())
+      return false
+    })
 })
 
 
-function query(artist, token){
+function query(artist){
+  
   let headers = {
     "Accept": "application/json",
     "Content-Type": "application/json",
@@ -28,20 +38,29 @@ function query(artist, token){
   myData.artist=''
   myData.tracks=[]
   myData.featuredArtists=[]
-  var myNode = document.querySelector("#tbody");
-  while (myNode.firstChild) {
-    myNode.removeChild(myNode.firstChild);
-}
-  featureSongs(artist, headers);
-  dupes();
-  cleanSongs();
-  displayArtists();
-  doWork();
+  $("#tbody").empty();
+
+  let url = "https://api.spotify.com/v1/search?type=track&q=artist:"+ artist + "&limit=50"
+
+  allRequestsCompleted = false;
+  currentlyMakingRequest = false;
+  targetUrl = url;
+
+  intervalId = window.setInterval(() =>{
+    if(!currentlyMakingRequest && !allRequestsCompleted){
+
+      currentlyMakingRequest = true;
+      jsonRequest(targetUrl,headers)
+    }
+    if(allRequestsCompleted){
+      window.clearInterval(intervalId);
+    }
+  }, 100);
 }
 
 function jsonRequest(url, head){
+
   $.ajax({
-    async:false,
     url: url,
     success: function(d)
         {
@@ -56,21 +75,29 @@ function jsonRequest(url, head){
               featureTracks.push(d.tracks.items[song]);
             };
           };
-          myData.next = d.tracks.next
-          myData.tracks.push.apply(myData.tracks, featureTracks)},
+          myData.next = d.tracks.next;
+          myData.tracks.push.apply(myData.tracks, featureTracks);
+          if(!myData.next){
+            allRequestsCompleted = true;
+            dupes();
+            cleanSongs();
+            displayArtists();
+            doWork();
+            
+            $("#theButton").removeAttr("disabled");
+            $("#Artist").removeAttr("disabled");
+            $("#searchProgress").hide();
+          } else{
+            targetUrl = myData.next;
+          }
+          currentlyMakingRequest = false;
+        
+        },
     error:function(_, text, error){console.log(text);console.log(error);console.log('error')},
     headers: head
   });
 }
 
-function featureSongs(artist, head) {
-    let url = "https://api.spotify.com/v1/search?type=track&q=artist:"+ artist + "&limit=50"
-    let header = head
-    jsonRequest(url,header)
-    while (window.myData.next){
-      jsonRequest(window.myData.next, header)
-    }
-}
 function dupes(){
   let tracks_to_remove = new Set([])
   for(let i = 0; i<myData.tracks.length;i++){
