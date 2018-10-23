@@ -1,5 +1,5 @@
 from app import db
-from app.models import Artist, Query , Song ##, Genre, ArtistImage
+from app.models import Artist, Query , Song, Performance ##, Genre, ArtistImage
 import datetime
 
 class Payload:
@@ -31,11 +31,19 @@ class Payload:
         if song:
             pass
         else:
-            song = Song(spotify_id= trackObject['id'], name=trackObject['name'], song_length=trackObject['duration_ms'],artist_id=self.artist_id)
-            for performer_ in trackObject['artists'][1:]:
-                song.performers.append(Artist.query.get(self.performer(performer_).id))
+            song = Song(spotify_id= trackObject['id'], name=trackObject['name'], song_length=trackObject['duration_ms'])  #,artist_id=self.artist_id)
+            #for performer_ in trackObject['artists'][1:]:
+            #    song.performers.append(Artist.query.get(self.performer(performer_).id))
             db.session.add(song)
             db.session.flush()
+            primary = True
+            for performer_ in trackObject['artists']:
+                artist = self.performer(performer_)
+                performance = Performance(song_id=song.id, artist_id=artist.id,is_primary=primary)
+                db.session.add(performance)
+                primary = False
+            db.session.flush()
+
 
     def all_songs(self):
         tracks = self.tracks
@@ -43,7 +51,7 @@ class Payload:
             self.add_new_song(track)
 
     def performer(self,artistObject):
-        p = Artist.query.filter_by(spotify_id=artistObject['spotify_id']).first()
+        p = Artist.query.filter_by(spotify_id=artistObject['id']).first()
         if p:
             return p
         else:
