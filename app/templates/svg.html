@@ -1,0 +1,50 @@
+
+    <button onclick="circly100()">click me</button>
+    <svg id='svg' width="500" height="500">
+        <defs>
+            <pattern id="myPattern1" patternUnits="userSpaceOnUse" width="100" height="100">
+                <image href="https://via.placeholder.com/50x50" x="0" y="0" width="100" height="100" />
+            </pattern>
+        </defs>
+
+ 
+    </svg>
+
+    <script>
+        var radius = 10
+        var angle = 0
+        var call = 0
+        var reset = 8
+        var lap = 0
+        var xcoord = radius*2.5 * Math.cos(angle * Math.PI /180) + 250
+        var ycoord = radius*2.5 * Math.sin(angle * Mah.PI /180) + 250
+        function set_coords(){
+            xcoord = (radius*2 + lap*radius*2.5) * Math.cos(angle * Math.PI /180) + 250
+            ycoord = (radius*2 + lap*radius*2.5) * Math.sin(angle * Math.PI /180) + 250
+        }
+        function circly(){
+            var svg = document.querySelector('#svg')
+            var circ =  document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            circ.setAttribute("cx",xcoord)
+            circ.setAttribute("cy",ycoord)
+            circ.setAttribute("r", radius)
+            circ.setAttribute("stroke",'blue')
+            circ.setAttribute("stroke-width",1)
+            svg.appendChild(circ)
+            console.log(angle,'*: ',xcoord, ycoord)
+            angle+=360/reset
+            call+=1
+            if (call == reset){
+                call=0
+                reset+=4
+                lap+=1
+                radius-=0.5
+            }
+            set_coords()
+        }
+        function circly100(){
+            for(let i =0; i<8;i++){
+                circly()
+            }
+        }
+    </script>
