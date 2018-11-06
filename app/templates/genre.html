@@ -1,0 +1,22 @@
+{% extends 'layout.html' %}
+
+
+
+{% block app_content %}
+<form action="">
+    <div class="col-md-6 mx-auto container">
+        <div class="row">
+            <div class="col-md-6 mx-auto ">
+                {{ form.genre1 }}
+            </div>
+            <div class="col-md-6 mx-auto ">
+                {{ form.genre2 }}
+            </div>
+        </div>        
+    </div>
+</form>
+<div id='results' >
+    
+</div>
+<script src="../static/js/genre.js"></script>
+{% endblock %}

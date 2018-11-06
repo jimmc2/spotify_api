@@ -1,20 +1,32 @@
 import requests
 from app.models import Song, Artist, Url, Genre, artistGenre
-from app import db
+from app import app, db
+import base64
+import sys
+import os
+import json
 
-class sleeperQuery:
+class Spotify:
     def __init__(self):
-        self.headers= {"Authorization": "",
-                        "Accept": "application/json",
-                        "Content-Type": "application/json"} 
+        self.client_id = app.config['CLIENT_ID']
+        self.client_secret = app.config['CLIENT_SECRET'] 
+        self.auth_token = ''           
+        self.get_headers = {"Authorization": "Bearer {}".format(self.auth_token),
+                            "Accept": "application/json",
+                            "Content-Type": "application/json"}
+    
 
-    # def authcode(id_, secret):
-    #     auth_header = base64.b64encode((id_ + ':' + secret).encode('ascii'))
-    #     return 'Basic %s' % auth_header.decode('ascii')
-    # headers = {
-    #     'Authorization': authcode(client_id,client_secret)
-    # }
-    # response = requests.post(url,headers=headers,data=data)
+    def postAuth(self, id_, secret):
+        post_headers = {}
+        post_data = {'grant_type':'client_credentials'}
+        auth_url = 'https://accounts.spotify.com/api/token'
+        encode_header = base64.b64encode((id_ + ':' + secret).encode('ascii'))
+        post_headers['Authorization'] =  'Basic ' + encode_header.decode('ascii')
+        response = requests.post(auth_url, headers=post_headers,data=post_data)
+        if response.status_code == 200:
+            self.auth_token = response.json()['access_token']
+            self.get_headers['Authorization'] =  "Bearer {}".format(self.auth_token)
+ 
 
     def get50artists(self):
         artists_ids = Artist.query.filter_by(popularity=None).limit(50).all()
@@ -24,10 +36,11 @@ class sleeperQuery:
         song_ids = Song.query.filter_by(popularity=None).limit(50).all()
         return song_ids ## returns list of song objects
 
-    def queryArtists(self,artistList):
+    def queryArtists(self):
+        artistList = self.get50artists()
         artist_ids = '%2C'.join([a.spotify_id for a in artistList])
         url = "https://api.spotify.com/v1/artists?ids=" + artist_ids
-        response = requests.get(url,headers=self.headers)
+        response = requests.get(url,headers=self.get_headers)
         print(response)
         artists = response.json()['artists']
         keyps = ['genres','id','images','popularity']
@@ -56,10 +69,11 @@ class sleeperQuery:
                             artistList[i].genres.append(gen)
         db.session.commit()
 
-    def querySong(self,songList):
+    def querySongs(self):
+        songList = self.get50songs()
         song_ids = '%2C'.join([s.spotify_id for s in songList])
         url = "https://api.spotify.com/v1/tracks?ids=" + song_ids
-        response = requests.get(url,headers=self.headers)
+        response = requests.get(url,headers=self.get_headers)
         tracks = response.json()['tracks']
         del_keys = ['available_markets','album','artists','disc_number','duration_ms','explicit','external_ids','href','is_local','name','preview_url','track_number','type','uri']
         
@@ -70,14 +84,6 @@ class sleeperQuery:
         for i in range(len(songList)):
             for j in range(len(tracks)):
                 if songList[i].spotify_id == tracks[j]['id']:
-                    songList[i].popularity = tracks[j]['popularity']
-                    for k,v in tracks[j]['external_urls'].items():
-                        print(k)
-                        if k == 'spotify':
-                            pass
-                        else:
-                            url = Url(song_id=songList[i].id,site=k,link=v)
-                            print('url')
-                            db.session.add(url)           
+                    songList[i].popularity = tracks[j]['popularity']  
                     db.session.flush()
         db.session.commit()

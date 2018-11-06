@@ -1,0 +1,20 @@
+/* .results {
+
+} */
+.song {
+    border:1px solid #63CCCA;
+    margin-bottom: 2px;
+}
+.songname {
+    text-align: center;
+}
+/* .artists {
+
+} */
+.image>img {
+    max-height: 100px;
+    max-width:auto;
+}
+/* .artistname {
+
+} */

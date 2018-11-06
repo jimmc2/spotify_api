@@ -11,4 +11,4 @@ bootstrap = Bootstrap(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app,db)
 
-from app import routes, models, dbcommits,backwork
+from app import routes, models, dbcommits, backwork
